@@ -33,15 +33,9 @@ export const Dropdown: FC = () => {
     inputRef.current?.addEventListener('focus', () => {
       setOpen(true);
     });
-    inputRef.current?.addEventListener('blur', () => {
-      setOpen(false);
-    });
     return () => {
       inputRef.current?.removeEventListener('focus', () => {
         setOpen(true);
-      });
-      inputRef.current?.removeEventListener('blur', () => {
-        setOpen(false);
       });
     };
   }, [inputRef]);
@@ -97,7 +91,6 @@ export const Dropdown: FC = () => {
                     className="cursor-pointer bg-slate-100 px-4 py-2"
                     onClick={() => {
                       setText(filteredOption.label);
-                      console.log(inputRef.current);
                       inputRef.current?.select();
                     }}
                   >
