@@ -1,23 +1,114 @@
-import { FC, useRef } from 'react';
+import { FC, Fragment, useEffect, useRef, useState } from 'react';
 import { OPTIONS } from '../constants';
+import { useOutsideClick } from './use-outside-click';
+import { motion } from 'framer-motion';
+
+type TContainerElement = HTMLDivElement;
 
 export const Dropdown: FC = () => {
-  const ref = useRef(null);
+  const containerRef = useRef<TContainerElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  const [text, setText] = useState('');
+  const [isOpen, setOpen] = useState(true);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleClose = () => setOpen(false);
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setText(event.target.value);
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    timeoutRef.current = setTimeout(() => {
+      console.log('do debounce stuff (eg. API request)');
+    }, 300);
+  };
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    inputRef.current?.addEventListener('focus', () => {
+      setOpen(true);
+    });
+    inputRef.current?.addEventListener('blur', () => {
+      setOpen(false);
+    });
+    return () => {
+      inputRef.current?.removeEventListener('focus', () => {
+        setOpen(true);
+      });
+      inputRef.current?.removeEventListener('blur', () => {
+        setOpen(false);
+      });
+    };
+  }, [inputRef]);
+
+  useOutsideClick<TContainerElement>({
+    ref: containerRef,
+    handler: handleClose
+  });
+
+  const filteredOptions = OPTIONS.filter((option) => {
+    if (!text) {
+      return true;
+    }
+    return option.label.toLowerCase().includes(text.toLowerCase());
+  });
 
   return (
-    <div
-      ref={ref}
-      className="bg-blue flex h-screen w-full flex-col items-center justify-center"
-    >
-      <div className="flex w-full flex-col gap-4 bg-red-500 xl:w-[600px]">
-        <h1>Dropdown</h1>
-        <p>Here are some options:</p>
-        <ul className="flex flex-col gap-2 bg-green-600">
-          {OPTIONS.map((option) => (
-            <li key={`${option.id}`}>{option.label}</li>
-          ))}
-        </ul>
-      </div>
+    <div className="flex h-screen w-full flex-col items-center justify-center">
+      <motion.div
+        layout
+        ref={containerRef}
+        className="flex w-full flex-col bg-slate-50 lg:w-[600px]"
+      >
+        <motion.label layout className="bg-slate-100 px-4 py-3">
+          <input ref={inputRef} value={text} onChange={handleChange} />
+        </motion.label>
+        {isOpen ? (
+          <>
+            {filteredOptions.length > 0 && <div className="h-4" />}
+            <motion.ul
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              layout
+              className="flex flex-col"
+            >
+              {filteredOptions.map((filteredOption, index) => (
+                <Fragment key={`${filteredOption.id}`}>
+                  {index !== 0 && (
+                    <motion.li
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      exit={{ opacity: 0 }}
+                      layout
+                      className="h-2 w-full border-white"
+                    />
+                  )}
+                  <motion.li
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    layout
+                    className="cursor-pointer bg-slate-100 px-4 py-2"
+                    onClick={() => {
+                      setText(filteredOption.label);
+                      console.log(inputRef.current);
+                      inputRef.current?.select();
+                    }}
+                  >
+                    {filteredOption.label}
+                  </motion.li>
+                </Fragment>
+              ))}
+            </motion.ul>
+          </>
+        ) : null}
+      </motion.div>
     </div>
   );
 };
