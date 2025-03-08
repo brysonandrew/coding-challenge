@@ -53,55 +53,57 @@ export const Dropdown: FC = () => {
   });
 
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center">
-      <motion.div
-        layout
-        ref={containerRef}
-        className="flex w-full flex-col bg-slate-50 lg:w-[600px]"
-      >
-        <motion.label layout className="bg-slate-100 px-4 py-3">
-          <input ref={inputRef} value={text} onChange={handleChange} />
-        </motion.label>
-        {isOpen ? (
-          <>
-            {filteredOptions.length > 0 && <div className="h-4" />}
-            <motion.ul
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              layout
-              className="flex flex-col"
-            >
-              {filteredOptions.map((filteredOption, index) => (
-                <Fragment key={`${filteredOption.id}`}>
-                  {index !== 0 && (
+    <div className="relative flex h-screen w-full flex-col items-center justify-center">
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2">
+        <motion.div
+          layout
+          ref={containerRef}
+          className="flex w-full flex-col bg-slate-50 lg:w-[600px]"
+        >
+          <motion.label layout className="bg-slate-100 px-4 py-3">
+            <input ref={inputRef} value={text} onChange={handleChange} />
+          </motion.label>
+          {isOpen ? (
+            <>
+              {filteredOptions.length > 0 && <div className="h-4" />}
+              <motion.ul
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                layout
+                className="flex flex-col"
+              >
+                {filteredOptions.map((filteredOption, index) => (
+                  <Fragment key={`${filteredOption.id}`}>
+                    {index !== 0 && (
+                      <motion.li
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        layout
+                        className="h-2 w-full border-white"
+                      />
+                    )}
                     <motion.li
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       exit={{ opacity: 0 }}
                       layout
-                      className="h-2 w-full border-white"
-                    />
-                  )}
-                  <motion.li
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    layout
-                    className="cursor-pointer bg-slate-100 px-4 py-2"
-                    onClick={() => {
-                      setText(filteredOption.label);
-                      inputRef.current?.select();
-                    }}
-                  >
-                    {filteredOption.label}
-                  </motion.li>
-                </Fragment>
-              ))}
-            </motion.ul>
-          </>
-        ) : null}
-      </motion.div>
+                      className="cursor-pointer bg-slate-100 px-4 py-2"
+                      onClick={() => {
+                        setText(filteredOption.label);
+                        inputRef.current?.select();
+                      }}
+                    >
+                      {filteredOption.label}
+                    </motion.li>
+                  </Fragment>
+                ))}
+              </motion.ul>
+            </>
+          ) : null}
+        </motion.div>
+      </div>
     </div>
   );
 };
